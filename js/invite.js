@@ -6,10 +6,7 @@ function showInviteScreen(onNext) {
 
   screen.innerHTML = `
     
-    <a href="invitation.png" target="_blank" rel="noopener">
-      <img class="invite-img" src="invitation.png" alt="Secret Santa invitation">
-    </a>
-    
+    <img class="invite-img" src="invitation.png" alt="Secret Santa invitation" draggable="false">
     <button id="invite-next" class="btn" type="button">Reveal my Secret Santa</button>
   `;
 

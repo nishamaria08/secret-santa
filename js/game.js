@@ -12,7 +12,8 @@ const GAME = {
   decoyPoints: 20,   // points lost for tapping the snowman
   decoyChance: 0.6,  // how often the snowman appears (0.6 = 60% of the time)
   slowestMs: 750,    // how long Santa stays still at the start
-  fastestMs: 400     // how long Santa stays still by the end (he speeds up)
+  fastestMs: 400,    // how long Santa stays still at top speed
+  speedUpSeconds: 8  // seconds to reach top speed (same in practice and the real game)
 };
 
 function showGameScreen(onFinished) {
@@ -137,7 +138,9 @@ function showGameScreen(onFinished) {
       }
 
       // Santa gets faster as time goes on
-      const progress = Math.min(1, (Date.now() - startTime) / (seconds * 1000));
+      // Reaches top speed after speedUpSeconds and stays there,
+      // so the real game feels exactly like practice, then keeps going at full speed.
+      const progress = Math.min(1, (Date.now() - startTime) / (GAME.speedUpSeconds * 1000));
       const delay = GAME.slowestMs - (GAME.slowestMs - GAME.fastestMs) * progress;
 
       clearTimeout(moveTimer);

@@ -371,6 +371,11 @@ hr {
   height: auto;
   margin-top: 12px;
   border-radius: 10px;
+  /* Not tappable: no opening, dragging, or long-press "save image" menu */
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
 }
 
 /* ---------- Name draw + wishlist ---------- */
