@@ -77,7 +77,7 @@ function goToInvite() {
 
 async function goToDraw(isReturning) {
   const result = await runStep('Finding your Secret Santa...', () => api.reveal(state.password));
-  showDrawScreen(result.assignedTo, isReturning, () => goToLeaderboard());
+  showDrawScreen(result, isReturning, () => goToLeaderboard());
 }
 
 async function goToLeaderboard() {

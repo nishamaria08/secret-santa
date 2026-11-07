@@ -264,6 +264,21 @@ input[type="text"] {
   background: #fff;
 }
 
+textarea {
+  display: block;
+  width: 100%;
+  margin-top: 8px;
+  padding: 12px 14px;
+  font-family: inherit;
+  font-size: 1rem;
+  line-height: 1.4;
+  border: 2px solid #ccc;
+  border-radius: 10px;
+  background: #fff;
+  resize: vertical;
+}
+
+textarea:focus,
 input[type="text"]:focus {
   outline: none;
   border-color: #b3261e;
@@ -322,6 +337,64 @@ input[type="text"]:focus {
   border-radius: 10px;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
+}
+
+/* ---------- Shared text styles ---------- */
+
+h2 {
+  font-size: 1.3rem;
+  margin: 24px 0 8px;
+}
+
+hr {
+  margin: 28px 0 0;
+  border: none;
+  border-top: 2px dashed #ddd;
+}
+
+.muted {
+  color: #666;
+  font-size: 0.95rem;
+}
+
+.status {
+  min-height: 1.5em;
+  margin-top: 8px;
+  font-size: 0.95rem;
+}
+
+/* ---------- Invitation ---------- */
+
+.invite-img {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin-top: 12px;
+  border-radius: 10px;
+}
+
+/* ---------- Name draw + wishlist ---------- */
+
+.draw-name {
+  margin: 4px 0;
+  font-size: 2.4rem;
+  font-weight: 700;
+  color: #b3261e;
+  overflow-wrap: anywhere;
+}
+
+.wishlist-box {
+  padding: 12px 14px;
+  text-align: left;
+  white-space: pre-wrap; /* keep their line breaks */
+  overflow-wrap: anywhere;
+  background: #f7f2e8;
+  border-radius: 10px;
+}
+
+.wishlist-label {
+  font-weight: 400;
+  margin-top: 0;
 }
 
 .final-score {

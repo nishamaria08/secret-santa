@@ -19,5 +19,6 @@ const api = {
   login: (password) => callBackend({ action: 'login', password: password }),
   submitScore: (password, score) => callBackend({ action: 'submitScore', password: password, score: score }),
   reveal: (password) => callBackend({ action: 'reveal', password: password }),
+  saveWishlist: (password, wishlist) => callBackend({ action: 'saveWishlist', password: password, wishlist: wishlist }),
   leaderboard: () => callBackend({ action: 'leaderboard' })
 };

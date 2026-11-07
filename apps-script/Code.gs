@@ -6,15 +6,19 @@
 
 const SHEET_NAME = 'Players';
 
-// Column positions in the Players tab (0 = column A)
-const COL = {
-  name: 0,        // A
-  password: 1,    // B
-  played: 2,      // C
-  score: 3,       // D
-  assignedTo: 4,  // E
-  playedAt: 5     // F
+// Column headers the script looks for in row 1 of the Players tab.
+// The columns can be in any order; only the header text matters.
+const HEADERS = {
+  name: 'name',
+  password: 'password',
+  played: 'played',
+  score: 'score',
+  assignedTo: 'assigned_to',
+  playedAt: 'played_at',
+  wishlist: 'wishlist'
 };
+
+const WISHLIST_MAX_LENGTH = 500;
 
 // -------------------------------------------------------------
 // Entry points
@@ -45,6 +49,9 @@ function doPost(e) {
       case 'reveal':
         result = reveal(req.password);
         break;
+      case 'saveWishlist':
+        result = saveWishlist(req.password, req.wishlist);
+        break;
       case 'leaderboard':
         result = leaderboard();
         break;
@@ -67,11 +74,11 @@ function doPost(e) {
 // Check the password. Tells the website the player's name and
 // whether they have already played.
 function login(password) {
-  const rows = getRows();
-  const player = findPlayer(rows, password);
+  const data = loadData();
+  const player = findPlayer(data.rows, password);
   if (!player) return { ok: false, error: 'Wrong password' };
 
-  ensureAssignments(rows);
+  ensureAssignments(data);
 
   return { ok: true, name: player.name, played: player.played };
 }
@@ -79,34 +86,60 @@ function login(password) {
 // Save the game score and mark the player as played.
 // A second attempt is ignored, so nobody can replay for a better score.
 function submitScore(password, score) {
-  const rows = getRows();
-  const player = findPlayer(rows, password);
+  const data = loadData();
+  const player = findPlayer(data.rows, password);
   if (!player) return { ok: false, error: 'Wrong password' };
   if (player.played) return { ok: true, alreadyPlayed: true };
 
   const cleanScore = Math.max(0, Math.round(Number(score) || 0));
-  const sheet = getSheet();
-  sheet.getRange(player.rowNumber, COL.played + 1).setValue(true);
-  sheet.getRange(player.rowNumber, COL.score + 1).setValue(cleanScore);
-  sheet.getRange(player.rowNumber, COL.playedAt + 1).setValue(new Date());
+  setCell(data, player, 'played', true);
+  setCell(data, player, 'score', cleanScore);
+  setCell(data, player, 'playedAt', new Date());
 
   return { ok: true };
 }
 
-// Tell the player who they are buying for (only after they've played).
+// Tell the player who they are buying for (only after they've played),
+// that person's wishlist, and their own wishlist so they can edit it.
 function reveal(password) {
-  const rows = getRows();
-  const player = findPlayer(rows, password);
+  const data = loadData();
+  const player = findPlayer(data.rows, password);
   if (!player) return { ok: false, error: 'Wrong password' };
   if (!player.played) return { ok: false, error: 'Play the game first' };
 
-  return { ok: true, name: player.name, assignedTo: player.assignedTo };
+  const receiver = data.rows.find(r => r.name === player.assignedTo);
+
+  return {
+    ok: true,
+    name: player.name,
+    assignedTo: player.assignedTo,
+    theirWishlist: receiver ? receiver.wishlist : '',
+    myWishlist: player.wishlist,
+    allNames: data.rows.map(r => r.name) // used for the spinning name draw
+  };
+}
+
+// Save the player's own wishlist.
+function saveWishlist(password, wishlist) {
+  const data = loadData();
+  const player = findPlayer(data.rows, password);
+  if (!player) return { ok: false, error: 'Wrong password' };
+  if (!player.played) return { ok: false, error: 'Play the game first' };
+
+  const text = String(wishlist || '').trim().slice(0, WISHLIST_MAX_LENGTH);
+
+  // A leading apostrophe stops Sheets treating text like "=..." as a formula.
+  // It isn't shown in the Sheet or sent back to the website.
+  const safeText = /^[=+\-@]/.test(text) ? "'" + text : text;
+  setCell(data, player, 'wishlist', safeText);
+
+  return { ok: true, wishlist: text };
 }
 
 // Everyone who has played, highest score first.
 // Ties go to whoever played first.
 function leaderboard() {
-  const rows = getRows()
+  const players = loadData().rows
     .filter(r => r.played)
     .sort((a, b) => {
       if (b.score !== a.score) return b.score - a.score;
@@ -114,7 +147,7 @@ function leaderboard() {
     })
     .map(r => ({ name: r.name, score: r.score }));
 
-  return { ok: true, players: rows };
+  return { ok: true, players: players };
 }
 
 // -------------------------------------------------------------
@@ -127,34 +160,48 @@ function json(obj) {
     .setMimeType(ContentService.MimeType.JSON);
 }
 
-function getSheet() {
+// Read the whole Players tab: works out which column is which from the
+// headers in row 1, then reads every player row (skipping blank rows).
+function loadData() {
   const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_NAME);
   if (!sheet) throw new Error('Could not find a tab called "' + SHEET_NAME + '"');
-  return sheet;
-}
 
-// Read every player row from the sheet (skips blank rows).
-function getRows() {
-  const values = getSheet().getDataRange().getValues();
+  const values = sheet.getDataRange().getValues();
+  const headerRow = values[0].map(h => String(h).trim().toLowerCase());
+
+  const cols = {};
+  for (const key in HEADERS) {
+    const index = headerRow.indexOf(HEADERS[key]);
+    if (index === -1) {
+      throw new Error('Missing column "' + HEADERS[key] + '" in row 1 of the ' + SHEET_NAME + ' tab');
+    }
+    cols[key] = index;
+  }
+
   const rows = [];
-
   for (let i = 1; i < values.length; i++) { // start at 1 to skip the header row
     const r = values[i];
-    const name = String(r[COL.name]).trim();
+    const name = String(r[cols.name]).trim();
     if (name === '') continue;
 
     rows.push({
       rowNumber: i + 1, // sheet rows start at 1
       name: name,
-      password: String(r[COL.password]).trim(),
-      played: String(r[COL.played]).toUpperCase() === 'TRUE',
-      score: Number(r[COL.score]) || 0,
-      assignedTo: String(r[COL.assignedTo]).trim(),
-      playedAt: r[COL.playedAt] instanceof Date ? r[COL.playedAt].getTime() : 0
+      password: String(r[cols.password]).trim(),
+      played: String(r[cols.played]).toUpperCase() === 'TRUE',
+      score: Number(r[cols.score]) || 0,
+      assignedTo: String(r[cols.assignedTo]).trim(),
+      playedAt: r[cols.playedAt] instanceof Date ? r[cols.playedAt].getTime() : 0,
+      wishlist: String(r[cols.wishlist]).trim()
     });
   }
 
-  return rows;
+  return { sheet: sheet, cols: cols, rows: rows };
+}
+
+// Write one value into a player's row, e.g. setCell(data, player, 'score', 50)
+function setCell(data, player, columnKey, value) {
+  data.sheet.getRange(player.rowNumber, data.cols[columnKey] + 1).setValue(value);
 }
 
 // Find a player by password. Not case-sensitive, so phone
@@ -169,12 +216,13 @@ function findPlayer(rows, password) {
 // Shuffle the names and give each person the next one along the list
 // (the last person gets the first). Nobody ever gets themselves, and
 // the draw can never get stuck at the end.
-function ensureAssignments(rows) {
+function ensureAssignments(data) {
+  const rows = data.rows;
   const filled = rows.filter(r => r.assignedTo !== '').length;
   if (filled === rows.length) return; // already done
 
   if (filled > 0) {
-    throw new Error('Some names in column E are missing. Clear all of column E (except the header) and try again.');
+    throw new Error('Some names in the assigned_to column are missing. Clear the whole column (except the header) and try again.');
   }
   if (rows.length < 2) {
     throw new Error('Add at least 2 players to the sheet.');
@@ -188,11 +236,10 @@ function ensureAssignments(rows) {
     shuffled[j] = temp;
   }
 
-  const sheet = getSheet();
   for (let i = 0; i < shuffled.length; i++) {
     const giver = shuffled[i];
     const receiver = shuffled[(i + 1) % shuffled.length];
     giver.assignedTo = receiver.name;
-    sheet.getRange(giver.rowNumber, COL.assignedTo + 1).setValue(receiver.name);
+    setCell(data, giver, 'assignedTo', receiver.name);
   }
 }
