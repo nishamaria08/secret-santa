@@ -8,7 +8,7 @@ const GAME = {
   realSeconds: 20,
   gridSize: 4,       // 4 = a 4x4 grid (16 squares)
   hitPoints: 10,     // points for tapping Santa
-  missPoints: 10,    // points lost for tapping an empty square
+  missPoints: 5,    // points lost for tapping an empty square
   decoyPoints: 20,   // points lost for tapping the snowman
   decoyChance: 0.6,  // how often the snowman appears (0.6 = 60% of the time)
   slowestMs: 750,    // how long Santa stays still at the start
@@ -159,11 +159,11 @@ function showGameScreen(onFinished) {
         score += GAME.hitPoints;
         placeSanta();
       } else if (index === decoyIndex) {
-        score = Math.max(0, score - GAME.decoyPoints);
+        score -= GAME.decoyPoints; // scores can go below zero
         cells[decoyIndex].textContent = '';
         decoyIndex = -1;
       } else {
-        score = Math.max(0, score - GAME.missPoints);
+        score -= GAME.missPoints;
       }
       scoreEl.textContent = score;
     });
