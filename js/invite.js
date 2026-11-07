@@ -5,11 +5,11 @@ function showInviteScreen(onNext) {
   const screen = document.getElementById('screen-invite');
 
   screen.innerHTML = `
-    <h1>You're invited! 🎄</h1>
+    
     <a href="invitation.png" target="_blank" rel="noopener">
       <img class="invite-img" src="invitation.png" alt="Secret Santa invitation">
     </a>
-    <p class="muted">Tap the card to see it full size.</p>
+    
     <button id="invite-next" class="btn" type="button">Reveal my Secret Santa</button>
   `;
 

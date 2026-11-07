@@ -397,6 +397,47 @@ hr {
   margin-top: 0;
 }
 
+/* ---------- Leaderboard ---------- */
+
+.lb-list {
+  list-style: none;
+  margin: 16px 0 8px;
+  padding: 0;
+  text-align: left;
+}
+
+.lb-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-bottom: 1px solid #eee;
+}
+
+.lb-rank {
+  width: 2em;
+  flex-shrink: 0;
+  text-align: center;
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+.lb-name {
+  flex: 1;
+  overflow-wrap: anywhere;
+}
+
+.lb-score {
+  font-weight: 700;
+}
+
+/* Your own row */
+.lb-me {
+  background: #f7f2e8;
+  border-radius: 8px;
+  font-weight: 700;
+}
+
 .final-score {
   margin: 0;
   font-size: 3rem;
