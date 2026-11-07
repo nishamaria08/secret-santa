@@ -1,1 +1,53 @@
-<h1>Secret Santa</h1>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Secret Santa</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Background decoration (filled in by js/background.js) -->
+  <div id="snow" class="snow" aria-hidden="true"></div>
+  <div id="lights" class="lights" aria-hidden="true"></div>
+  <div id="ground" class="ground" aria-hidden="true"></div>
+
+  <!-- Santa riding a reindeer across the sky -->
+  <div id="santa" class="santa" aria-hidden="true">
+    <span class="santa-rider">
+      <span class="santa-deer">🦌</span>
+      <span class="santa-man">🎅</span>
+    </span>
+    <span class="santa-trail">✨</span>
+  </div>
+
+  <main class="container">
+    <div class="card">
+      <!-- Each screen is filled in by its own file in the js folder.
+           Only one screen is visible at a time. -->
+      <section id="screen-lock" class="screen"></section>
+      <section id="screen-game" class="screen" hidden></section>
+      <section id="screen-invite" class="screen" hidden></section>
+      <section id="screen-draw" class="screen" hidden></section>
+      <section id="screen-leaderboard" class="screen" hidden></section>
+
+      <!-- Shown while talking to the Google Sheet -->
+      <section id="screen-loading" class="screen" hidden>
+        <p id="loading-text">Loading...</p>
+        <button id="loading-retry" class="btn" type="button" hidden>Try again</button>
+      </section>
+    </div>
+  </main>
+
+  <!-- Order matters: main.js must be last -->
+  <script src="js/background.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/lock.js"></script>
+  <script src="js/game.js"></script>
+  <script src="js/invite.js"></script>
+  <script src="js/draw.js"></script>
+  <script src="js/leaderboard.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>

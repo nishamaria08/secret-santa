@@ -1,0 +1,331 @@
+/* Works on phones and laptops */
+
+* {
+  box-sizing: border-box;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  background: #0f4d2b; /* Christmas green */
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  font-size: 18px;
+  line-height: 1.5;
+  color: #222;
+  min-height: 100vh;
+  /* Lighter green glow in the middle, deeper green at the edges */
+  background: radial-gradient(circle at 50% 35%, #1f7a45 0%, #0f4d2b 70%) fixed;
+}
+
+/* ---------- Background: Santa on a reindeer ---------- */
+
+.santa {
+  position: fixed;
+  left: 0;
+  top: 12vh;
+  display: flex;
+  align-items: center;
+  pointer-events: none;
+  z-index: 0;
+  animation: fly 16s linear infinite;
+  animation-delay: 1s;
+  transform: translateX(110vw); /* start off-screen to the right */
+}
+
+/* Flies right to left, then waits off-screen before the next pass */
+@keyframes fly {
+  0%   { transform: translateX(110vw); }
+  65%  { transform: translateX(-200px); }
+  100% { transform: translateX(-200px); }
+}
+
+.santa-rider {
+  position: relative;
+  display: inline-block;
+  animation: bob 1.2s ease-in-out infinite alternate;
+}
+
+.santa-deer {
+  display: block;
+  font-size: 4rem;
+  line-height: 1;
+}
+
+/* Santa sits on the reindeer's back */
+.santa-man {
+  position: absolute;
+  top: -0.2em;
+  right: 0.25em;
+  font-size: 2.2rem;
+  line-height: 1;
+}
+
+.santa-trail {
+  margin-left: 4px;
+  font-size: 1.6rem;
+  opacity: 0.9;
+}
+
+@keyframes bob {
+  from { transform: translateY(-6px); }
+  to   { transform: translateY(6px); }
+}
+
+/* ---------- Background: snowy ground with trees ---------- */
+
+.ground {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 40px;
+  background: #fff;
+  border-radius: 50% 50% 0 0 / 24px 24px 0 0;
+  display: flex;
+  justify-content: space-around;
+  align-items: flex-start;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.tree {
+  line-height: 1;
+  transform: translateY(-80%); /* trees stand on top of the snow */
+}
+
+/* ---------- Background: snow ---------- */
+
+.snow {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none; /* never blocks taps */
+  z-index: 0;
+}
+
+.flake {
+  position: absolute;
+  top: 0;
+  color: #fff;
+  animation-name: fall;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  will-change: transform;
+}
+
+@keyframes fall {
+  from { transform: translate(0, -10vh); }
+  to   { transform: translate(var(--drift), 110vh); }
+}
+
+/* ---------- Background: fairy lights ---------- */
+
+.lights {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 30px;
+  display: flex;
+  justify-content: space-around;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* The wire */
+.lights::before {
+  content: "";
+  position: absolute;
+  top: 6px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: #4a5d4a;
+}
+
+.bulb {
+  width: 10px;
+  height: 16px;
+  margin-top: 7px;
+  border-radius: 50%;
+  background: var(--colour);
+  box-shadow: 0 0 10px var(--colour);
+  animation: twinkle 1.6s ease-in-out infinite alternate;
+}
+
+.bulb:nth-child(even) {
+  animation-delay: 0.8s;
+}
+
+@keyframes twinkle {
+  from { opacity: 0.3; }
+  to   { opacity: 1; }
+}
+
+/* Respect people who've asked their device for less motion */
+@media (prefers-reduced-motion: reduce) {
+  .flake { display: none; }
+  .bulb { animation: none; }
+  .santa { display: none; }
+}
+
+/* ---------- Page layout ---------- */
+
+.container {
+  position: relative;
+  z-index: 1; /* sits above the snow */
+  max-width: 520px;
+  margin: 0 auto;
+  padding: 40px 16px 72px; /* room for the lights above and the ground below */
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* White card that holds every screen */
+.card {
+  background: #fff;
+  border-top: 8px solid #b3261e; /* red band across the top */
+  border-radius: 16px;
+  padding: 24px 20px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
+}
+
+.screen {
+  text-align: center;
+}
+
+h1 {
+  font-size: 2rem;
+  margin: 0 0 8px;
+}
+
+p {
+  margin: 8px 0;
+}
+
+.big-icon {
+  font-size: 4rem;
+  line-height: 1;
+  margin-bottom: 12px;
+}
+
+/* Big, easy-to-tap buttons */
+.btn {
+  display: block;
+  width: 100%;
+  min-height: 52px;
+  margin-top: 16px;
+  padding: 12px 20px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #fff;
+  background: #b3261e;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+/* Outline-style button for the less important choice */
+.btn-secondary {
+  color: #b3261e;
+  background: #fff;
+  border: 2px solid #b3261e;
+}
+
+label {
+  display: block;
+  margin-top: 16px;
+  font-weight: 600;
+}
+
+/* Font size of at least 16px stops iPhones zooming in on the box */
+input[type="text"] {
+  width: 100%;
+  margin-top: 8px;
+  padding: 12px 14px;
+  font-size: 1.1rem;
+  border: 2px solid #ccc;
+  border-radius: 10px;
+  background: #fff;
+}
+
+input[type="text"]:focus {
+  outline: none;
+  border-color: #b3261e;
+}
+
+.error {
+  min-height: 1.5em;
+  margin-top: 12px;
+  color: #b3261e;
+}
+
+/* ---------- Tap the Santa ---------- */
+
+.game-label {
+  margin: 0;
+  font-weight: 600;
+  color: #666;
+}
+
+.game-status {
+  display: flex;
+  justify-content: space-between;
+  max-width: 420px;
+  margin: 8px auto 0;
+  font-size: 1.2rem;
+}
+
+.game-message {
+  min-height: 1.5em;
+  font-size: 1.3rem;
+  font-weight: 600;
+}
+
+/* Grid of squares that fits any screen width, up to 420px.
+   The number of columns is set in game.js. */
+.game-grid {
+  display: grid;
+  gap: 6px;
+  width: 100%;
+  max-width: 420px;
+  margin: 0 auto;
+  touch-action: manipulation;   /* no double-tap zoom on phones */
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.game-cell {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  font-size: clamp(1.6rem, 9vw, 2.8rem);
+  background: #f4f4f4;
+  border: 2px solid #ddd;
+  border-radius: 10px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.final-score {
+  margin: 0;
+  font-size: 3rem;
+  font-weight: 700;
+}
